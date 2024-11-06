@@ -1,5 +1,5 @@
 # Unlimited-GooglePhotosBackupMod
-Magisk Module to enable Unlimited google photos backup.
+Magisk Module to enable Unlimited google photos backup. <br>
 zygisk must enabled, for using this mod.
 
 # Spoofing
