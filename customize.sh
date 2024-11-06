@@ -26,7 +26,7 @@ if [ -d /data/adb/modules/PixelifyPhotos/system/etc/sysconfig ]; then
     for i in /data/adb/modules/PixelifyPhotos/system/etc/sysconfig/*; do
         file=$i
         file=${file/\/data\/adb\/modules\/PixelifyPhotos\/system\/etc\/sysconfig\//}
-        if [ ! -f $MODPATH/system/etc/sysconfig/$file ]; then
+        if [ ! -f $MODPATH/system/etc/sysconfig/$file ];  then
             cp -f /data/adb/modules/PixelifyPhotos/system/etc/sysconfig/$file $MODPATH/system/etc/sysconfig/$file
         fi
     done
