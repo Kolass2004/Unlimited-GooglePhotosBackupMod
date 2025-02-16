@@ -10,3 +10,10 @@ it spoof targeted app (Google photos app ) as a Pixel 4 xl Device to get the unl
 <br>
 `` <feature name="com.google.android.apps.photos.nexus_preload" /> ``
 
+#Installation
+Download the zip |
+<a href="https://github.com/Kolass2004/Unlimited-GooglePhotosBackupMod/releases/download/v2.1/gphotos-unlimited-mod-v2.1-hotfix.zip" download >Download</a>
+
+flash the module zip in your root managers like Magisk/Apatch/kernalSU
+``Zygisk must enabled``
+reboot and enjoy
