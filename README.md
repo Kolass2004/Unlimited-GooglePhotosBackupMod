@@ -1,3 +1,8 @@
+
+[![Downloads](https://img.shields.io/github/downloads/Kolass2004/Unlimited-GooglePhotosBackupMod/report/total)](https://github.com/Kolass2004/Unlimited-GooglePhotosBackupMod/releases/latest)
+
+
+
 # Unlimited-GooglePhotosBackupMod
 Magisk Module to enable Unlimited google photos backup. <br>
 zygisk must enabled, for using this mod.
