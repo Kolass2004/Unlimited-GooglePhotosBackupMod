@@ -1,6 +1,6 @@
 
-[![Downloads](https://img.shields.io/github/downloads/Kolass2004/Unlimited-GooglePhotosBackupMod/report/total)](https://github.com/Kolass2004/Unlimited-GooglePhotosBackupMod/releases/latest)
-[![Hotfix downloads](https://img.shields.io/badge/dynamic/json?label=Hotfix%20downloads&query=$.assets[?(@.name=="gphotos-unlimited-mod-v2.1-hotfix.zip")].download_count&url=https://api.github.com/repos/Kolass2004/Unlimited-GooglePhotosBackupMod/releases/latest)](https://github.com/Kolass2004/Unlimited-GooglePhotosBackupMod/releases/latest)
+[![Total downloads](https://img.shields.io/github/downloads/Kolass2004/Unlimited-GooglePhotosBackupMod/total)](https://github.com/Kolass2004/Unlimited-GooglePhotosBackupMod/releases/latest)
+
 
 
 
