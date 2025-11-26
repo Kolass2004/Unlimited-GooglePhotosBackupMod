@@ -6,6 +6,9 @@ on:
       - main
       - master
 
+env:
+  DEFAULT_VERSION: "v2.1"
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -21,10 +24,10 @@ jobs:
       - name: Get latest tag
         id: get_tag
         run: |
-          # Get the latest tag, default to v2.1 if none exists
+          # Get the latest tag, default to DEFAULT_VERSION if none exists
           LATEST_TAG=$(git tag -l "v*" --sort=-v:refname | head -n 1)
           if [ -z "$LATEST_TAG" ]; then
-            LATEST_TAG="v2.1"
+            LATEST_TAG="${{ env.DEFAULT_VERSION }}"
           fi
           echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
 
@@ -58,17 +61,26 @@ jobs:
           # Create a temporary directory for the module
           mkdir -p /tmp/module
 
-          # Copy necessary files (exclude .git, .github, README.md, LICENSE)
-          cp -r META-INF /tmp/module/
-          cp -r system /tmp/module/
-          cp -r zygisk /tmp/module/
-          cp module.prop /tmp/module/
-          cp customize.sh /tmp/module/
+          # Copy necessary files if they exist
+          [ -d META-INF ] && cp -r META-INF /tmp/module/
+          [ -d system ] && cp -r system /tmp/module/
+          [ -d zygisk ] && cp -r zygisk /tmp/module/
+          [ -f module.prop ] && cp module.prop /tmp/module/
+          [ -f customize.sh ] && cp customize.sh /tmp/module/
+
+          # Extract module name from module.prop or use default
+          if [ -f module.prop ]; then
+            MODULE_NAME=$(grep "^name=" module.prop | cut -d'=' -f2- | \
+              tr -d '\r' | sed 's/[^a-zA-Z0-9]/-/g' | tr '[:upper:]' '[:lower:]')
+            MODULE_NAME=${MODULE_NAME:-gphotos-unlimited-mod}
+          else
+            MODULE_NAME="gphotos-unlimited-mod"
+          fi
 
           # Create the zip file
           cd /tmp/module
           NEW_TAG="${{ steps.get_tag.outputs.new_tag }}"
-          ZIP_NAME="gphotos-unlimited-mod-${NEW_TAG}.zip"
+          ZIP_NAME="${MODULE_NAME}-${NEW_TAG}.zip"
           zip -r "/tmp/$ZIP_NAME" .
 
           # Move back and save zip name
