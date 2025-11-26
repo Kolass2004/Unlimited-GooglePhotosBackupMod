@@ -24,3 +24,4 @@ Download the zip |
 flash the module zip in your root managers like Magisk/Apatch/kernalSU
 ``Zygisk must enabled``
 reboot and enjoy
+test commit for CI
