@@ -1,0 +1,107 @@
+name: Create Release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+env:
+  DEFAULT_VERSION: "v2.1"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          # Get the latest tag, default to DEFAULT_VERSION if none exists
+          LATEST_TAG=$(git tag -l "v*" --sort=-v:refname | head -n 1)
+          if [ -z "$LATEST_TAG" ]; then
+            LATEST_TAG="${{ env.DEFAULT_VERSION }}"
+          fi
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+
+          # Extract version number and increment patch version
+          VERSION=${LATEST_TAG#v}
+          MAJOR=$(echo $VERSION | cut -d. -f1)
+          MINOR=$(echo $VERSION | cut -d. -f2)
+          PATCH=$(echo $VERSION | cut -d. -f3)
+
+          # If no patch version, assume it's 0
+          if [ -z "$PATCH" ]; then
+            PATCH=0
+          fi
+
+          # Increment patch version
+          NEW_PATCH=$((PATCH + 1))
+          NEW_TAG="v${MAJOR}.${MINOR}.${NEW_PATCH}"
+          echo "new_tag=$NEW_TAG" >> $GITHUB_OUTPUT
+          echo "New tag will be: $NEW_TAG"
+
+      - name: Get commit message
+        id: commit_msg
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "commit_message<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMIT_MSG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create module zip
+        run: |
+          # Create a temporary directory for the module
+          mkdir -p /tmp/module
+
+          # Copy necessary files if they exist
+          [ -d META-INF ] && cp -r META-INF /tmp/module/
+          [ -d system ] && cp -r system /tmp/module/
+          [ -d zygisk ] && cp -r zygisk /tmp/module/
+          [ -f module.prop ] && cp module.prop /tmp/module/
+          [ -f customize.sh ] && cp customize.sh /tmp/module/
+
+          # Extract module name from module.prop or use default
+          if [ -f module.prop ]; then
+            MODULE_NAME=$(grep "^name=" module.prop | cut -d'=' -f2- | \
+              tr -d '\r' | sed 's/[^a-zA-Z0-9]/-/g' | tr '[:upper:]' '[:lower:]')
+            MODULE_NAME=${MODULE_NAME:-gphotos-unlimited-mod}
+          else
+            MODULE_NAME="gphotos-unlimited-mod"
+          fi
+
+          # Create the zip file
+          cd /tmp/module
+          NEW_TAG="${{ steps.get_tag.outputs.new_tag }}"
+          ZIP_NAME="${MODULE_NAME}-${NEW_TAG}.zip"
+          zip -r "/tmp/$ZIP_NAME" .
+
+          # Move back and save zip name
+          cd -
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+          echo "ZIP_PATH=/tmp/$ZIP_NAME" >> $GITHUB_ENV
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.get_tag.outputs.new_tag }}
+          name: Release ${{ steps.get_tag.outputs.new_tag }}
+          body: |
+            ## Changelog
+            ${{ steps.commit_msg.outputs.commit_message }}
+
+            ## Installation
+            1. Download the zip file below
+            2. Flash the module in your root manager (Magisk/Apatch/KernelSU)
+            3. Make sure Zygisk is enabled
+            4. Reboot and enjoy unlimited Google Photos backup
+          files: ${{ env.ZIP_PATH }}
+          draft: false
+          prerelease: false
